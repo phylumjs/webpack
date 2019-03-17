@@ -5,7 +5,7 @@ import { ChildProcess, fork } from 'child_process';
 import { Stats } from 'webpack';
 import { resolve } from 'path';
 
-export class WebpackRunTask extends Task<void> {
+export class WebpackRunTask extends Task<{code: number, signal: string}> {
 	getWebpackTask(): WebpackTask {
 		return this.container.get(WebpackTask);
 	}
@@ -19,9 +19,9 @@ export class WebpackRunTask extends Task<void> {
 			const procDisposable = this.disposable();
 			state.then(stats => {
 				if (stats.hasErrors()) {
+					this.error(new Error('Bundle finished with errors.'));
 					return;
 				}
-
 				if (!proc) {
 					const {target, context} = stats.compilation.compiler.options;
 					if (target === 'node' || target === 'async-node') {
@@ -30,16 +30,18 @@ export class WebpackRunTask extends Task<void> {
 							cwd: context,
 							stdio: [0, 1, 2, 'ipc']
 						});
-						proc.on('exit', () => {
-							proc = null;
-							this.push();
-						});
-						proc.on('error', error => {
-							this.error(error);
-						});
+						this.push(new Promise((resolve, reject) => {
+							proc.on('exit', (code, signal) => {
+								proc = null;
+								resolve({code, signal});
+							});
+							proc.on('error', error => {
+								reject(error);
+							});
+						}));
 						procDisposable.resolve(() => proc.kill());
 					} else {
-						throw new Error('Compilation target must be "node", "async-node".');
+						throw new Error('webpack config.target must be "node", "async-node".');
 					}
 				}
 			}).catch(error => {
@@ -55,7 +57,7 @@ function getChunkFilename(stats: Stats, name: string): string {
 	const {compilation} = stats;
 	const mainChunk = compilation.chunks.find(chunk => chunk.name === name);
 	if (!mainChunk) {
-		throw new TypeError('Main chunk not found.');
+		throw new TypeError(`No chunk found with name: "${name}".`);
 	}
 	return resolve(compilation.compiler.options.output.path, mainChunk.files[0]);
 }
