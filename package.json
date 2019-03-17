@@ -1,5 +1,5 @@
 {
-	"name": "@phlum/webpack",
+	"name": "@phylum/webpack",
 	"version": "4.0.0-beta.0",
 	"description": "Phlum webpack integration",
 	"main": "dist/index.js",
