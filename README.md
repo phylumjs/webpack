@@ -23,10 +23,9 @@ class BundleTask extends WebpackTask {
 }
 ```
 
-## Stats
-The task outputs the latest webpack compilation stats.
+## Output
+The task outputs compilation stats:
 ```ts
-// somewhere in another task:
 const stats = await this.use(BundleTask);
 ```
 
