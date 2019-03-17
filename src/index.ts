@@ -8,7 +8,7 @@ export class WebpackTask extends Task<Stats> {
 		return {};
 	}
 
-	run() {
+	protected run() {
 		const disposableWatcher = this.disposable();
 		this.getWebpackConfig().then(config => {
 			const compiler = webpack(config);
