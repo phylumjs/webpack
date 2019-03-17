@@ -21,13 +21,7 @@ class Bundle extends WebpackTask {
 	}
 }
 
-class RunBundle extends WebpackRunTask {
-	getWebpackTask() {
-		return this.container.get(Bundle);
-	}
-}
-
-exports.default = class Main extends Task {
+class BundleAndLog extends Task {
 	async run() {
 		const stats = await this.use(Bundle);
 		const data = stats.toJson();
@@ -38,7 +32,20 @@ exports.default = class Main extends Task {
 			console.warn(msg);
 		}
 		console.log('Bundle finished.');
-
-		await this.use(RunBundle);
 	}
 }
+
+class RunBundle extends WebpackRunTask {
+	getWebpackTask() {
+		return this.container.get(Bundle);
+	}
+}
+
+exports.default = class Main extends Task {
+	async run() {
+		await Promise.all([
+			this.use(BundleAndLog),
+			this.use(RunBundle)
+		]);
+	}
+};

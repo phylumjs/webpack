@@ -34,6 +34,9 @@ export class WebpackRunTask extends Task<void> {
 							proc = null;
 							this.push();
 						});
+						proc.on('error', error => {
+							this.error(error);
+						});
 						procDisposable.resolve(() => proc.kill());
 					} else {
 						throw new Error('Compilation target must be "node", "async-node".');
