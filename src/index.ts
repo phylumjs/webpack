@@ -1,3 +1,3 @@
 
-export * from './webpack-run-task';
+export * from './bundle-process';
 export * from './webpack-task';

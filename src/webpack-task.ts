@@ -10,7 +10,7 @@ export class WebpackTask extends Task<Stats> {
 
 	protected run() {
 		const disposableWatcher = this.disposable();
-		this.getWebpackConfig().then(config => {
+		this.getWebpackConfig().then(async config => {
 			const compiler = webpack(config);
 			const callback = (error: Error, stats: Stats) => {
 				if (error) {

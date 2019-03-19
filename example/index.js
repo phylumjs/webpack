@@ -1,22 +1,27 @@
 'use strict';
 
 const { resolve } = require('path');
+const { HotModuleReplacementPlugin } = require('webpack');
 const { Task } = require('@phylum/pipeline');
 const { ConfigTask } = require('@phylum/cli');
-const { WebpackRunTask, WebpackTask } = require('..');
+const { WebpackTask, BundleProcessTask } = require('..');
 
 class Bundle extends WebpackTask {
 	async getWebpackConfig() {
 		const {command} = await this.use(ConfigTask);
+		const watch = command.has('watch');
 		return {
 			context: resolve(__dirname, '..'),
-			entry: './example/src',
+			entry: [require.resolve('../process-hmr'), './example/src'],
 			target: 'node',
 			output: {
 				path: resolve(__dirname, 'dist')
 			},
 			mode: command.string('mode', 'development'),
-			watch: command.has('watch')
+			watch,
+			plugins: [
+				new HotModuleReplacementPlugin()
+			]
 		};
 	}
 }
@@ -35,9 +40,9 @@ class BundleAndLog extends Task {
 	}
 }
 
-class RunBundle extends WebpackRunTask {
-	getWebpackTask() {
-		return this.container.get(Bundle);
+class StartBundle extends BundleProcessTask {
+	getTarget() {
+		return this.container.get(Bundle)
 	}
 }
 
@@ -45,7 +50,7 @@ exports.default = class Main extends Task {
 	async run() {
 		await Promise.all([
 			this.use(BundleAndLog),
-			this.use(RunBundle)
+			this.use(StartBundle)
 		]);
 	}
 };
