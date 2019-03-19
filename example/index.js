@@ -12,7 +12,7 @@ class Bundle extends WebpackTask {
 		const watch = command.has('watch');
 		return {
 			context: resolve(__dirname, '..'),
-			entry: [require.resolve('../process-hmr'), './example/src'],
+			entry: [require.resolve('../hmr'), './example/src'],
 			target: 'node',
 			output: {
 				path: resolve(__dirname, 'dist')

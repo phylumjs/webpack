@@ -21,7 +21,13 @@ export async function tryHotUpdate(proc: ChildProcess): Promise<boolean> {
             resolve(res.statusCode === 200);
             res.resume();
         });
-        req.on('error', reject);
+        req.on('error', error => {
+            if (error && (error as any).code === 'ENOENT') {
+                resolve(false);
+            } else {
+                reject(error);
+            }
+        });
         req.end();
     });
 }
