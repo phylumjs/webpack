@@ -9,9 +9,28 @@ npm i @phylum/webpack webpack
 
 # Usage
 ```ts
+import { Task } from '@phylum/pipeline';
 import { WebpackTask } from '@phylum/webpack';
 
-const task = new WebpackTask(getConfigOrCompiler);
+const config = Task.value({
+	// ...webpack config...
+});
+
+const bundle = new WebpackTask(config);
 ```
-+ getConfigOrCompiler `Task<webpack.Configuration | webpack.Compiler>` - A task that returns the configuration to use for the compiler.
-+ returns `WebpackTask` - A task that runs a webpack compiler either a single time or in watch mode if configured.
+
+## Output
+The task will output stats from the latest compilation<br>
+and will only reject in case of critical errors.
+```ts
+new Task(async t => {
+	const stats = await t.use(bundle);
+	const data = stats.toJson();
+	for (const msg of data.warnings) {
+		console.warn(msg);
+	}
+	for (const msg of data.errors) {
+		console.error(msg);
+	}
+});
+```
