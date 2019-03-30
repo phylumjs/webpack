@@ -3,10 +3,15 @@ import { Task } from '@phylum/pipeline';
 import webpack = require('webpack');
 
 export class WebpackTask extends Task<webpack.Stats> {
-	public constructor(public readonly getConfig: Task<webpack.Configuration>) {
+	public constructor(getConfigOrCompiler: Task<webpack.Configuration | webpack.Compiler>) {
+		const getCompiler = getConfigOrCompiler.transform<webpack.Compiler>(configOrCompiler => {
+			if (configOrCompiler instanceof webpack.Compiler) {
+				return configOrCompiler;
+			}
+			return webpack(configOrCompiler);
+		});
 		super(task => {
-			task.activity(task.use(getConfig).then(config => {
-				const compiler = webpack(config);
+			task.activity(task.use(getCompiler).then(compiler => {
 				const callback = (error: any, stats: webpack.Stats) => {
 					if (error) {
 						task.throw(error);
@@ -14,8 +19,8 @@ export class WebpackTask extends Task<webpack.Stats> {
 						task.return(stats);
 					}
 				}
-				if (config.watch) {
-					const watcher = compiler.watch(config.watchOptions, callback);
+				if (compiler.options.watch) {
+					const watcher = compiler.watch(compiler.options.watchOptions, callback);
 					task.using(() => new Promise(resolve => watcher.close(resolve)));
 				} else {
 					task.activity(new Promise(resolve => {
@@ -27,9 +32,8 @@ export class WebpackTask extends Task<webpack.Stats> {
 				}
 			}));
 		});
+		this.getCompiler = getCompiler;
 	}
-}
 
-export function webpackTask(getConfig: Task<webpack.Configuration>): WebpackTask {
-	return new WebpackTask(getConfig);
+	public readonly getCompiler: Task<webpack.Compiler>;
 }
