@@ -1,4 +1,7 @@
 # PhlumJS + Webpack
+[![Build Status](https://travis-ci.com/phylumjs/webpack.svg?branch=master)](https://travis-ci.com/phylumjs/webpack)
+[![Coverage Status](https://coveralls.io/repos/github/phylumjs/webpack/badge.svg?branch=master)](https://coveralls.io/github/phylumjs/webpack?branch=master)
+[![Latest](https://img.shields.io/npm/v/@phylum/webpack.svg?label=latest) ![License](https://img.shields.io/npm/l/@phylum/webpack.svg?label=license)](https://npmjs.org/package/@phylum/webpack)
 
 ## Installation
 ```bash
