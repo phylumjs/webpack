@@ -28,6 +28,7 @@ test('simple usage', async t => {
 		await access(`${dirname}/dist/index.js`);
 
 		dispose(start);
+		await bundle.inactive();
 		t.pass();
 	})));
 });
@@ -43,6 +44,8 @@ test('error handling', async t => {
 	const error = await new Promise((resolve, reject) => {
 		const r = bundle.pipe(state => state.then(reject, resolve).then(() => dispose(r)));
 	});
+	dispose(start);
+	await bundle.inactive();
 	t.is(error.message, 'foo');
 });
 
@@ -76,6 +79,7 @@ test('watch', t => tmp(async dirname => {
 	});
 
 	dispose(start);
+	await bundle.inactive();
 	t.pass();
 }));
 
