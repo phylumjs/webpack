@@ -1,6 +1,6 @@
 {
 	"name": "@phylum/webpack",
-	"version": "4.0.2",
+	"version": "4.0.3",
 	"description": "Webpack integration",
 	"main": "dist/index.js",
 	"scripts": {
